@@ -1,5 +1,18 @@
 FROM vital987/vubuntu:latest
 
+RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip && \
+    unzip rclone-current-linux-amd64.zip -d /tmp && \
+    cp /tmp/rclone-*-linux-amd64/rclone /usr/bin/ && \
+    chown root:root /usr/bin/rclone && \
+    chmod 755 /usr/bin/rclone && \
+    rm -rf rclone* /tmp/*
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get --no-install-recommends install -y \
+    aria2 neofetch rar unrar rename openssh-client tmate sshpass rsync restic && \
+    ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+
 ENV     DEBIAN_FRONTEND=noninteractive \
 #VNC Server Password
 	VNC_PASS="samplepass" \
