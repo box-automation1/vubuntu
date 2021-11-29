@@ -25,6 +25,10 @@
                 "value" : "0",
         "required" : true
         },
+      "CHROME_REMOTE_DESKTOP_TOKEN" : {
+        "description": "Chrome Remote Desktop One Time OAuth Token, As The Name Suggests, The Token Expires After 1 use, So Generate New Token During Deploy, Read More About It Here",
+        "required" : true
+        },
       "APP_NAME" : {
         "description": "Name of the app, same as mentioned above.",
                 "value" : "",

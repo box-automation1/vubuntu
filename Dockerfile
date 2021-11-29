@@ -20,6 +20,8 @@ ENV VNC_PASS="samplepass" \
     NGROK_AUTH_TOKEN="placeholder" \
 #Brave Shared Memory Usage (Set it to 0 to disable the use of /dev/shm for Brave Browser, helpful for Heroku)
     BRAVE_USE_SHM=1 \
+#Chrome Remote Desktop One Time Token
+    CHROME_REMOTE_DESKTOP_TOKEN="sampletoken" \
 #Locale
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
@@ -33,7 +35,7 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get update && \
     apt-get --no-install-recommends install -y \
 #Basic Packages
-    tzdata software-properties-common apt-transport-https wget zip unzip htop git curl vim nano zip sudo net-tools x11-utils eterm iputils-ping build-essential xvfb x11vnc supervisor \
+    tzdata software-properties-common apt-transport-https wget zip unzip htop git curl vim nano zip sudo net-tools x11-utils eterm iputils-ping build-essential xvfb x11vnc supervisor tasksel \
 #GUI Utilities
     gnome-terminal gnome-calculator gnome-system-monitor pcmanfm terminator firefox \
 #Python
@@ -73,8 +75,8 @@ RUN apt-get update && \
     #ubuntu-mate-core \
     #ubuntu-mate-desktop && \
 #XFCE Desktop (remove "/app/.vubuntu/assets/packages/fluxbox.deb" from line 66 before uncommenting)
-    #apt-get install -y \
-    #xubuntu-desktop && \
+    apt-get install -y \
+    xubuntu-desktop xfce4 desktop-base dbus-x11 xscreensaver && \
 #TimeZone
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone && \
@@ -105,6 +107,13 @@ RUN apt-get update && \
     wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -P /tmp && \
     unzip /tmp/ngrok-stable-linux-amd64.zip -d /usr/bin && \
     ngrok authtoken $NGROK_AUTH_TOKEN && \
+#Chrome Remote Desktop Dependencies And Package Installation
+    wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb -P /tmp && \
+    apt-get update && \
+    apt-get install --no-install-recommends /tmp/chrome-remote-desktop_current_amd64.deb -y && \
+    bash -c 'echo "exec /etc/X11/Xsession /usr/bin/xfce4-session" > /etc/chrome-remote-desktop-session' && \
+    systemctl disable lightdm.service && \
+    DISPLAY= /opt/google/chrome-remote-desktop/start-host --code=$CHROME_REMOTE_DESKTOP_TOKEN --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="$VNC_TITLE" && \
 #Live Server setup for VSCode
     code --user-data-dir /root --no-sandbox --install-extension philnash.ngrok-for-vscode && \
     code --user-data-dir /root --no-sandbox --install-extension ritwickdey.LiveServer && \
